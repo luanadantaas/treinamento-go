@@ -1,0 +1,67 @@
+version: '3'
+services:
+  api:
+    build:
+      context: .
+      dockerfile: ./build/grpc/Dockerfile
+    environment:
+      DATABASE: db
+      DATABASE_TYPE: gorm
+      REDIS_PORT: cache:6379
+      REDIS_PASSWORD: eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+    ports:
+      - 8080:8080
+    expose:
+      - 8080
+    depends_on:
+      - db
+      - cache
+
+  api_grpc:
+    command: /app/grpc
+    build:
+      context: .
+      dockerfile: ./build/grpc/Dockerfile
+    environment:
+      DATABASE: db
+      DATABASE_TYPE: gorm
+      REDIS_PORT: cache:6379
+      REDIS_PASSWORD: eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+    ports:
+      - 8082:8082
+    expose:
+      - 8082
+    depends_on:
+      - db
+      - cache
+
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'database'
+      MYSQL_USER: 'user'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_ROOT_PASSWORD: 'password'
+    command: --init-file /data/init/create-tables.sql
+    #ports:
+     # - '3306:3306'
+    expose:
+      - '3306'
+    volumes:
+      - data:/var/lib/mysql
+      - ./create-tables.sql:/data/init/create-tables.sql
+
+  cache:
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server --save 20 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+    volumes: 
+      - cache:/data
+
+volumes:
+  data:
+
+  #adicionar valr da contante pra ser usada no codigo

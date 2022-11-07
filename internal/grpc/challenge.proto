@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+package grpc;
+
+option go_package = "challenges/cmd/grpc";
+
+import "google/protobuf/empty.proto";
+import "internal/grpc/google/api/annotations.proto";
+
+
+service TaskService{
+    rpc ListTask(google.protobuf.Empty) returns (TaskList){
+		option (google.api.http) = {
+			get: "/tasks"
+		};
+	}
+	rpc GetTask(Task) returns (Task){
+		option (google.api.http) = {
+			get: "/tasks/{id}"
+		};
+	}
+
+	rpc NewTask(Task) returns (IntId){
+		option (google.api.http) = {
+			post: "/tasks"
+			body:"*"
+		};
+	}
+	rpc UpdateTask(Task) returns (google.protobuf.Empty){
+		option (google.api.http) = {
+			put: "/tasks/{id}"
+			body:"*"
+		};
+	}
+	rpc ListComp(Task) returns (TaskList){
+		option (google.api.http) = {
+			get: "/tasks/{completed}"
+		};
+	} 
+}
+
+message Task {
+	int32 id = 1;
+    string name = 2;
+	string completed = 3;
+}
+
+message TaskList {
+	repeated Task tasks = 1;
+}
+
+message IntId {
+	int32 id = 1;
+}
